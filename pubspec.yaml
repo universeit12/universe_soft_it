@@ -1,21 +1,8 @@
 name: universe_soft_it
 description: "A new Flutter project."
-# The following line prevents the package from being accidentally published to
-# pub.dev using `flutter pub publish`. This is preferred for private packages.
+
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-# The following defines the version and build number for your application.
-# A version number is three numbers separated by dots, like 1.2.43
-# followed by an optional build number separated by a +.
-# Both the version and the builder number may be overridden in flutter
-# build by specifying --build-name and --build-number, respectively.
-# In Android, build-name is used as versionName while build-number used as versionCode.
-# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
-# In iOS, build-name is used as CFBundleShortVersionString while build-number is used as CFBundleVersion.
-# Read more about iOS versioning at
-# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-# In Windows, build-name is used as the major, minor, and patch parts
-# of the product and file versions while build-number is used as the build suffix.
 version: 1.0.0+1
 
 environment:
@@ -35,33 +22,55 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.6
-  provider: ^6.1.2
-  http: ^1.2.1
-  readmore: ^3.0.0
-  fluttertoast: ^8.2.6
-  flutter_spinkit: ^5.2.1
-  flick_video_player: ^0.8.0
-  youtube_player_flutter: ^8.0.0
-  flutter_screenutil: ^5.9.3
+  #flutter_launcher_icons: ^0.14.1
+  provider:
+  http:
+  readmore:
+  fluttertoast:
+  flutter_spinkit:
+  flick_video_player:
+  youtube_player_flutter:
+  flutter_screenutil:
 
   # State management and storage
-  get: ^4.6.6
-  get_storage: ^2.1.1
+  get:
+  get_storage:
+  # For Marque
+  flutter_html:
+  marquee:
 
   dart_code_metrics:
-  flutter_html:
+  url_launcher:
+  flutter_local_notifications:
+  curved_navigation_bar:
+  animated_text_kit:
+  onesignal_flutter:
+  flutter_svg:
+  lottie:
+  video_player:
+  permission_handler:
+  share_plus:
+  iconsax:
+  firebase_core:
+  intl: ^0.19.0
+  path_provider: ^2.1.4
+  html: ^0.15.0
+
+
+
+
+
+
+
 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  # The "flutter_lints" package below contains a set of recommended lints to
-  # encourage good coding practices. The lint set provided by the package is
-  # activated in the `analysis_options.yaml` file located at the root of your
-  # package. See that file for information about deactivating specific lint
-  # rules and activating additional ones.
+
   flutter_lints: ^3.0.0
+
   #change_app_package_name: ^0.1.3
  #flutter_app_name: ^0.1.0
 
@@ -81,7 +90,9 @@ flutter:
   assets:
     - assets/
     - assets/images/offer/
-    - assets/images/course/
+    - assets/images/
+
+
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
@@ -95,10 +106,27 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
+  fonts:
+    - family: FontMain1
+      fonts:
+        - asset: assets/fonts/BebasNeue-Regular.ttf
+
+
+    - family: FontMain2
+      fonts:
+        - asset: assets/fonts/Teko-VariableFont_wght.ttf
+
+    - family: FontMain3
+      fonts:
+        - asset: assets/fonts/Lobster-Regular.ttf
+
+    - family: TextForm
+      fonts:
+        - asset: assets/fonts/Courgette-Regular.ttf
+
+    - family: FontMain4
+      fonts:
+        - asset: assets/fonts/DMSans-VariableFont_opsz,wght.ttf
   #       - asset: fonts/Schyler-Italic.ttf
   #         style: italic
   #   - family: Trajan Pro
