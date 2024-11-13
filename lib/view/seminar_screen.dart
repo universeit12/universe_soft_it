@@ -1,26 +1,19 @@
 
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
-
 import 'package:universe_soft_it/resource/bottom_app_bar/bottom_navigation_app_bar.dart';
 import 'package:universe_soft_it/resource/common_widget/screen_background.dart';
 import 'package:universe_soft_it/repository/seminar_controller.dart';
-
-
-
-
 import '../resource/constant.dart';
-
 import '../resource/common_widget/loading_widget.dart';
 import '../resource/common_widget/call_now_widget.dart';
 import '../resource/common_widget/footer.dart';
 import '../resource/common_widget/map_location.dart';
 import '../resource/constant_string.dart';
-import '../utils/routes/routes_name.dart';
+import '../utils/routes/route_name.dart';
+
 
 class SeminarScreen extends StatelessWidget {
     SeminarScreen({super.key});

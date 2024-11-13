@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http/http.dart' as http;
 import '../../models/video_url_model.dart';
-import '../../youtube_player/youtube_player.dart';
+import 'youtube_player.dart';
 import 'loading_widget.dart';
 
 class Offer extends StatefulWidget {

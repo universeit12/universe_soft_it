@@ -15,6 +15,7 @@ import 'package:universe_soft_it/view/home_screen.dart';
 import 'package:universe_soft_it/view/splash_screen.dart';
 import 'package:universe_soft_it/view/all_course_screen.dart';
 
+import 'app.dart';
 import 'firebase_options.dart';
 import 'view/free_seminar_screen.dart';
 
@@ -42,56 +43,7 @@ Future<void> main() async {
 
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
 
-  static final navigatorKey = GlobalKey<NavigatorState> ();
-
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    String? screen;
-    OneSignal.Notifications.addClickListener((event) {
-      final data = event.notification.additionalData;
-      screen = data?['screen'];
-      if(screen != null){
-        navigatorKey.currentState?.pushNamed(screen!);
-      }
-
-    });
-
-    return ScreenUtilInit(
-      designSize: const Size(375, 812),
-      child: GetMaterialApp(
-        debugShowCheckedModeBanner: false,
-        navigatorKey: navigatorKey,
-        title: 'Flutter Demo',
-        theme: ThemeData(
-
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          useMaterial3: true,
-        ),
-        initialRoute: (screen != null)?screen :'/',
-
-        routes: {
-          '/':(context)=>   const SplashScreen(),
-          '/homeScreen':(context)=> const HomeScreen(),
-          '/loginScreen':(context)=>  LoginScreen1(),
-          '/allPopularCourse':(context)=> const AllPopularCourse(),
-          '/allBlogScreen':(context)=> const AllBlog(),
-          '/allFacultyScreen':(context)=> const AllFacultyMember(),
-          '/seminarScreen':(context)=>   SeminarScreen(),
-          '/addmissionScreen':(context)=> const OnlineAdmission(),
-          '/freeSeminarScreen':(context)=>  const FreeSeminarScreen(),
-          '/notificationScreen':(context)=>  NotificationScreen(),
-
-        },
-
-
-      ),
-    );
-  }
-}
 
 
 

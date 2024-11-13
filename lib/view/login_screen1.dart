@@ -6,8 +6,8 @@ import 'package:get/get.dart';
 import '../resource/bottom_app_bar/bottom_navigation_app_bar.dart';
 import '../resource/common_widget/screen_background_2.dart';
 import '../view_model/login_view_model.dart';
-import 'reigister_screen.dart';
-import '../repository/login_controller.dart';
+import 'register_screen.dart';
+
 
 
 
@@ -20,7 +20,7 @@ class LoginScreen1 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    final controller = Get.put(LoginViewModel());
+    final controller = Get.find<LoginViewModel>();
 
 
     return Scaffold(
@@ -100,7 +100,7 @@ class LoginScreen1 extends StatelessWidget {
                         {
                          final result = await controller.signIn(_numberTEController.text);
                          if (result) {
-                           Get.offAll(()=> const BottomAppBarNavigation(selectedItem: 1,));
+                           Get.offAll(()=> const BottomAppBarNavigation(selectedItem: 0,));
                          } else {
 
                            //showSnackBarMessage(context, _controller.errorMessage, true);

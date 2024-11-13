@@ -17,7 +17,7 @@ import '../resource/common_widget/call_now_widget.dart';
 import '../resource/constant_string.dart';
 import '../utils/utils.dart';
 
-import '../youtube_player/youtube_player.dart';
+import '../resource/common_widget/youtube_player.dart';
 import '../models/blog_model.dart';
 import '../resource/common_widget/footer.dart';
 import '../resource/common_widget/map_location.dart';

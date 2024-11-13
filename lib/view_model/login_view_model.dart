@@ -24,9 +24,9 @@ class LoginViewModel extends GetxController{
   // Private method for sign-in process
   Future<bool> signIn(number) async {
     _inProgress.value = true;
-    Map<String, dynamic> requestBody = {"mobile": number,};
+    Map<String, dynamic> requestBody = {"phone": number,};
 
-    final dynamic response = LoginController.signIn1(requestBody);
+    final dynamic response = await LoginController.signIn1(requestBody);
 
     if (response.isSuccess) {
       _isSuccess.value = true;

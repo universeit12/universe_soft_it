@@ -20,7 +20,7 @@ import '../models/carrer_objective_model.dart';
 import '../models/course_category_model.dart';
 import '../resource/common_widget/call_now_widget.dart';
 import '../resource/constant_string.dart';
-import '../youtube_player/youtube_player.dart';
+import '../resource/common_widget/youtube_player.dart';
 import 'online_admission_screen.dart';
 import '../resource/common_widget/footer.dart';
 

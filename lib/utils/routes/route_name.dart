@@ -1,7 +1,9 @@
 class RouteName{
-  static const String intro = "/";
-  static const String courseHome = "/courseHome";
+
+  static const String splashScreen = "/";
+  static const String homeScreen = "/homeScreen";
   static const String loginScreen = "/loginScreen";
+  static const String signUpScreen = "/signUpScreen";
   static const String profileScreen = "/profileScreen";
   static const String allPopularCourse = "/allPopularCourse";
   static const String freeSeminarScreen = "/freeSeminarScreen";
@@ -9,5 +11,6 @@ class RouteName{
   static const String seminarScreen = "/seminarScreen";
   static const String detailScreen = "/detailScreen";
   static const String blogDetailScreen = "/blogDetailScreen";
+
 
 }

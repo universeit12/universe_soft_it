@@ -7,7 +7,7 @@ import 'package:get/get.dart';
 import 'package:universe_soft_it/resource/constant.dart';
 import 'package:universe_soft_it/repository/blog_controller.dart';
 import 'package:universe_soft_it/view/blog_details_screen.dart';
-import 'package:universe_soft_it/youtube_player/youtube_player.dart';
+import 'package:universe_soft_it/resource/common_widget/youtube_player.dart';
 
 import '../resource/common_widget/loading_widget.dart';
 import '../resource/constant_string.dart';
