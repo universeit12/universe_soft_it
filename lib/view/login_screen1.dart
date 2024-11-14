@@ -2,8 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-
-import '../resource/bottom_app_bar/bottom_navigation_app_bar.dart';
+import 'package:universe_soft_it/utils/routes/route_name.dart';
 import '../resource/common_widget/screen_background_2.dart';
 import '../view_model/login_view_model.dart';
 import 'register_screen.dart';
@@ -85,7 +84,7 @@ class LoginScreen1 extends StatelessWidget {
 
               SizedBox(height: size.height * 0.03),
 
-              Container(
+              Obx(() => Container(
                 alignment: Alignment.centerRight,
                 margin: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
                 child: ElevatedButton(
@@ -100,7 +99,7 @@ class LoginScreen1 extends StatelessWidget {
                         {
                          final result = await controller.signIn(_numberTEController.text);
                          if (result) {
-                           Get.offAll(()=> const BottomAppBarNavigation(selectedItem: 0,));
+                           Navigator.pushReplacementNamed(context, RouteName.homeScreen);
                          } else {
 
                            //showSnackBarMessage(context, _controller.errorMessage, true);
@@ -142,14 +141,14 @@ class LoginScreen1 extends StatelessWidget {
                     ),
                   ),
                 ),
-              ),
+              )),
 
               Container(
                 alignment: Alignment.centerRight,
                 margin: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
                 child: GestureDetector(
                   onTap: () => {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterScreen()))
+                    Navigator.push(context, MaterialPageRoute(builder: (context) =>  RegisterScreen()))
                   },
                   child: Text(
                     "Don't Have an Account? Sign up",

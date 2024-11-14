@@ -1,12 +1,12 @@
-import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:lottie/lottie.dart';
-
 import 'package:universe_soft_it/view/blog_details_screen.dart';
-
-import 'package:http/http.dart' as http;
+import 'package:universe_soft_it/view_model/blog_view_model.dart';
 import '../resource/bottom_app_bar/bottom_navigation_app_bar.dart';
 import '../resource/constant.dart';
 import '../resource/common_widget/header1.dart';
@@ -14,7 +14,7 @@ import '../resource/common_widget/loading_widget.dart';
 import '../resource/common_widget/call_now_widget.dart';
 import '../resource/constant_string.dart';
 import '../resource/common_widget/youtube_player.dart';
-import '../models/blog_model.dart';
+
 import 'course_search_screen.dart';
 import '../resource/common_widget/footer.dart';
 import '../resource/common_widget/map_location.dart';
@@ -28,16 +28,10 @@ class AllBlog extends StatefulWidget {
 
 class _BlocState extends State<AllBlog> {
   // Create sample data
-  List<BlogModel> blogList = [];
-  List<BlogModel> showBlogList = [];
-  @override
-  void initState() {
-    showBlogList = blogList;
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.find<BlogViewModel>();
     return SafeArea(
       child: Scaffold(
         floatingActionButton: GestureDetector(
@@ -80,21 +74,9 @@ class _BlocState extends State<AllBlog> {
                           ),
                           CourseSearch(
                             onchanged: (value) {
-                              if (value!.isNotEmpty) {
-                                setState(() {
-                                  showBlogList = blogList
-                                      .where((element) => element.title!
-                                          .toLowerCase()
-                                          .contains(value.toLowerCase()))
-                                      .toList();
-                                });
-                              } else {
-                                setState(() {
-                                  showBlogList = blogList;
-                                });
-                              }
+                              controller.filterCourses(value ?? '');
                             },
-                            hintext: searchForBlog,
+                            hintext: searchForCourse,
                           ),
                         ],
                       ),
@@ -125,153 +107,149 @@ class _BlocState extends State<AllBlog> {
                 SizedBox(
                   height: 5.h,
                 ),
-                SizedBox(
+                Obx(() => SizedBox(
                   height: 420.h,
-                  child: FutureBuilder(
-                    future: getData(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        return GridView.builder(
-                          itemCount: showBlogList.length,
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 2),
-                          itemBuilder: (context, index) {
-                            final blogs = showBlogList[index];
-                            return SizedBox(
-                              height: 250.h,
-                              child: Card(
-                                clipBehavior: Clip.antiAlias,
-                                elevation: 5,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10.r),
-                                ),
-                                child: InkWell(
-                                  onTap: () {
-                                    // Here we will open details our page
+                  child: Visibility(
+                    replacement: const Center(child: CustomLoadingWidget(),),
+                    visible: !controller.inProgress,
+                    child: GridView.builder(
+                      itemCount: controller.showBlogList.length,
+                      gridDelegate:
+                      const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2),
+                      itemBuilder: (context, index) {
+                        final blogs = controller.showBlogList[index];
 
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              BlogDetails(blog: blogs),
-                                        ));
-                                  },
-                                  child: Column(
-                                    children: [
-                                      blogs.videoUrl == null ||
-                                              blogs.videoUrl!.isEmpty
-                                          ? Image.network(
-                                              blogs.blogImageUrl.toString(),
-                                              fit: BoxFit.fill,
-                                              height: 80.h,
-                                              width: double.infinity,
-                                            )
-                                          : NetworkVideoPlayer(
-                                            videoUrl:
-                                                blogs.videoUrl.toString(),
-                                            autoplay: false,
-                                            isIconButton: false,
-                                            height: 70.h,
-                                            width: double.infinity,
-                                            fit: BoxFit.fill,
+                        return SizedBox(
+                          height: 250.h,
+                          child: Card(
+                            clipBehavior: Clip.antiAlias,
+                            elevation: 5,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.r),
+                            ),
+                            child: InkWell(
+                              onTap: () {
+                                // Here we will open details our page
 
-                                          ),
-                                      Flexible(
-                                        child: Center(
-                                          child: Text(
-                                            blogs.title.toString(),
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          BlogDetails(blog: blogs),
+                                    ));
+                              },
+                              child: Column(
+                                children: [
+                                  blogs.videoUrl == null ||
+                                      blogs.videoUrl!.isEmpty
+                                      ? Image.network(
+                                    blogs.blogImageUrl.toString(),
+                                    fit: BoxFit.fill,
+                                    height: 80.h,
+                                    width: double.infinity,
+                                  )
+                                      : NetworkVideoPlayer(
+                                    videoUrl:
+                                    blogs.videoUrl.toString(),
+                                    autoplay: false,
+                                    isIconButton: false,
+                                    height: 70.h,
+                                    width: double.infinity,
+                                    fit: BoxFit.fill,
+
+                                  ),
+                                  Flexible(
+                                    child: Center(
+                                      child: Text(
+                                        blogs.title.toString(),
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                            fontSize: 16.sp,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.grey.shade800,
+                                            fontFamily: "FontMain2",
+                                            letterSpacing: 0.5),
+                                      ),
+                                    ),
+                                  ),
+                                  Flexible(
+                                    child: Html(
+                                      data: blogs.description.toString(),
+                                      style: {
+                                        "*": Style(
                                             maxLines: 1,
-                                            style: TextStyle(
-                                                fontSize: 16.sp,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.grey.shade800,
-                                                fontFamily: "FontMain2",
-                                                letterSpacing: 0.5),
+                                            textOverflow:
+                                            TextOverflow.ellipsis,
+                                            color: Colors.grey.shade800,
+                                            fontSize: FontSize(13.0.sp),
+                                            fontFamily: "FontMain2",
+                                            letterSpacing: 0.5,
+                                            fontWeight: FontWeight.bold),
+                                      },
+                                    ),
+                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                    children: [
+                                      InkWell(
+                                        onTap: () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    BlogDetails(
+                                                        blog: blogs),
+                                              ));
+                                        },
+                                        child: Container(
+                                          height: 25.h,
+                                          width: 75.w,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                            BorderRadius.circular(10),
+                                            color: kOrangeColor,
                                           ),
-                                        ),
-                                      ),
-                                      Flexible(
-                                        child: Html(
-                                          data: blogs.description.toString(),
-                                          style: {
-                                            "*": Style(
-                                                maxLines: 1,
-                                                textOverflow:
-                                                    TextOverflow.ellipsis,
-                                                color: Colors.grey.shade800,
-                                                fontSize: FontSize(13.0.sp),
-                                                fontFamily: "FontMain2",
-                                                letterSpacing: 0.5,
-                                                fontWeight: FontWeight.bold),
-                                          },
-                                        ),
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceAround,
-                                        children: [
-                                          InkWell(
-                                            onTap: () {
-                                              Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        BlogDetails(
-                                                            blog: blogs),
-                                                  ));
-                                            },
-                                            child: Container(
-                                              height: 25.h,
-                                              width: 75.w,
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                                color: kOrangeColor,
-                                              ),
-                                              child: Center(
-                                                  child: Text(
+                                          child: Center(
+                                              child: Text(
                                                 readMore,
                                                 style: TextStyle(
                                                     color: Colors.white,
                                                     fontWeight: FontWeight.bold,
                                                     fontSize: 10.sp),
                                               )),
-                                            ),
+                                        ),
+                                      ),
+                                      Container(
+                                          height: 25.h,
+                                          width: 55.w,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                            BorderRadius.circular(10),
+                                            color: kOrangeColor,
                                           ),
-                                          Container(
-                                              height: 25.h,
-                                              width: 55.w,
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                                color: kOrangeColor,
-                                              ),
-                                              child: Center(
-                                                  child: Text(
+                                          child: Center(
+                                              child: Text(
                                                 blogs.date.toString(),
                                                 style: TextStyle(
                                                     fontSize: 9.sp,
                                                     color: Colors.white),
                                               ))),
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        height: 5.h,
-                                      ),
                                     ],
                                   ),
-                                ),
+                                  SizedBox(
+                                    height: 5.h,
+                                  ),
+                                ],
                               ),
-                            );
-                          },
+                            ),
+                          ),
                         );
-                      } else {
-                        return const Center(child: CustomLoadingWidget());
-                      }
-                    },
+                      },
+                    ),
                   ),
-                ),
+                )),
                 const Padding(
                   padding: EdgeInsets.only(left: 8, right: 8, top: 8),
                   child: MapLocationSection(),
@@ -292,19 +270,5 @@ class _BlocState extends State<AllBlog> {
     );
   }
 
-  Future<List<BlogModel>> getData() async {
-    final response = await http.get(Uri.parse("$baseUrl/blog"));
 
-    var data = jsonDecode(response.body.toString());
-
-    if (response.statusCode == 200) {
-      blogList.clear();
-      for (Map<String, dynamic> index in data) {
-        blogList.add(BlogModel.fromJson(index));
-      }
-      return blogList;
-    } else {
-      return blogList;
-    }
-  }
 }

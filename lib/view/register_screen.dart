@@ -1,20 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+
+import 'package:universe_soft_it/utils/routes/route_name.dart';
+import 'package:universe_soft_it/view_model/register_view_model.dart';
 import '../resource/common_widget/screen_background_2.dart';
-import 'login_screen1.dart';
-import '../repository/signup_controller.dart';
+
 
 
 
 
 class RegisterScreen extends StatelessWidget {
-  const RegisterScreen({super.key});
+   RegisterScreen({super.key});
+  final TextEditingController _nameTEController = TextEditingController();
+  final TextEditingController _phoneTEController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    final controller = Get.put(SignUpController());
+    final controller = Get.find<RegisterViewModel>();
+
 
 
 
@@ -50,7 +55,7 @@ class RegisterScreen extends StatelessWidget {
                 alignment: Alignment.center,
                 margin: const EdgeInsets.symmetric(horizontal: 40),
                 child: TextFormField(
-                  controller: controller.nameController,
+                  controller: _nameTEController,
                   keyboardType: TextInputType.name,
                   decoration: InputDecoration(
                       hintText: "Enter Name",
@@ -75,7 +80,7 @@ class RegisterScreen extends StatelessWidget {
                 alignment: Alignment.center,
                 margin: const EdgeInsets.symmetric(horizontal: 40),
                 child: TextField(
-                  controller:controller.mobileController ,
+                  controller:_phoneTEController ,
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                       hintText: "Enter Mobile Number",
@@ -92,7 +97,7 @@ class RegisterScreen extends StatelessWidget {
 
               SizedBox(height: size.height * 0.05),
 
-              Container(
+             Obx(() =>  Container(
                 alignment: Alignment.centerRight,
                 margin: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
                 child: ElevatedButton(
@@ -102,10 +107,10 @@ class RegisterScreen extends StatelessWidget {
 
                   ),
                   onPressed: () {
-                    if(controller.nameController.text.isNotEmpty ){
-                      if(controller.mobileController.text.isNotEmpty){
-                        if(controller.mobileController.text.length == 11){
-                          controller.registerApi(context);
+                    if(_nameTEController.text.isNotEmpty ){
+                      if(_phoneTEController.text.isNotEmpty){
+                        if(_phoneTEController.text.length == 11){
+                          controller.register(name: _nameTEController.text,number: _phoneTEController.text);
 
                         }else{
                           Get.snackbar("Error", "Please enter 11 digits of number");
@@ -139,7 +144,7 @@ class RegisterScreen extends StatelessWidget {
                         )
                     ),
                     padding: const EdgeInsets.all(0),
-                    child: controller.isLoading.value? const Center(child: CircularProgressIndicator()):const Text(
+                    child: controller.inProgress? const Center(child: CircularProgressIndicator()):const Text(
                       "SIGN UP",
                       textAlign: TextAlign.center,
                       style: TextStyle(
@@ -149,14 +154,17 @@ class RegisterScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-              ),
+              )),
 
               Container(
                 alignment: Alignment.centerRight,
                 margin: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
                 child: GestureDetector(
-                  onTap: () => {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) =>  LoginScreen1()))
+                  onTap: ()  {
+
+                            Navigator.pushReplacementNamed(context, RouteName.loginScreen);
+
+
                   },
                   child: Text(
                     "Already Have an Account? Sign in",

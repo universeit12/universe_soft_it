@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:universe_soft_it/resource/constant.dart';
+import 'package:universe_soft_it/utils/routes/route_name.dart';
 
 
 
@@ -42,22 +43,22 @@ class _BottomAppBarNavigationState extends State<BottomAppBarNavigation> {
       items: navigationItem,
       onTap: (index){
         if(index == 0){
-          Navigator.pushReplacementNamed(context,'/homeScreen');
+          Navigator.pushReplacementNamed(context,RouteName.homeScreen);
         }
         else if(index == 1){
-          Navigator.pushReplacementNamed(context, '/allPopularCourse');
+          Navigator.pushReplacementNamed(context, RouteName.allPopularCourse);
 
         }
         else if(index == 2){
-          Navigator.pushReplacementNamed(context,'/allBlogScreen');
+          Navigator.pushReplacementNamed(context,RouteName.allBlogScreen);
 
         }
         else if(index == 3){
-          Navigator.pushReplacementNamed(context, '/seminarScreen');
+          Navigator.pushReplacementNamed(context, RouteName.seminarScreen);
 
         }
         else if(index == 4){
-          Navigator.pushReplacementNamed(context,'/addmissionScreen');
+          Navigator.pushReplacementNamed(context,RouteName.onlineAdmission);
 
         }
         else if(index == 5){

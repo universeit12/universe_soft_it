@@ -9,6 +9,7 @@ import 'package:universe_soft_it/resource/common_widget/screen_background.dart';
 import 'package:universe_soft_it/repository/admission_controller.dart';
 
 import 'package:universe_soft_it/resource/common_widget/toast_message.dart';
+import 'package:universe_soft_it/view_model/addmission_view_model.dart';
 
 import '../resource/bottom_app_bar/bottom_navigation_app_bar.dart';
 import '../resource/constant.dart';
@@ -31,18 +32,19 @@ class OnlineAdmission extends StatefulWidget {
 }
 
 class _OnlineAdmissionState extends State<OnlineAdmission> {
-  final controller = Get.put(AdmissionController());
-  _OnlineAdmissionState() {
-    selectedVal = controller.courseList[0];
-    selectedGenderVal = controller.genderTypeList[0];
-  }
 
-  String selectedVal = "";
-  String selectedGenderVal = "";
+  final _emailTEController = TextEditingController();
+  final _nameTEController = TextEditingController();
+  final _numberTEController = TextEditingController();
+  final _addressTEController = TextEditingController();
+  final _websiteTEController = TextEditingController();
+
+
 
   @override
   Widget build(BuildContext context) {
     final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+    final controller = Get.find<AddmissionViewModel>();
 
     return Scaffold(
       floatingActionButton: GestureDetector(
@@ -115,7 +117,7 @@ class _OnlineAdmissionState extends State<OnlineAdmission> {
                   child: Column(
                     children: [
                       CustomTextField(
-                        controller: controller.nameController.value,
+                        controller: _nameTEController,
                         hintext: name,
                         bordercolor: kPrimaryColor,
                         validator: (value) {
@@ -128,7 +130,7 @@ class _OnlineAdmissionState extends State<OnlineAdmission> {
                       SizedBox(height: 10.h),
                       CustomTextField(
 
-                        controller: controller.emailController.value,
+                        controller: _emailTEController,
                         keyboardType: TextInputType.emailAddress,
 
                         hintext: email,
@@ -139,7 +141,7 @@ class _OnlineAdmissionState extends State<OnlineAdmission> {
                         height: 10.h,
                       ),
                       CustomTextField(
-                        controller: controller.numberController.value,
+                        controller: _numberTEController,
                         keyboardType: TextInputType.number,
 
                         hintext: contactNo,
@@ -208,7 +210,7 @@ class _OnlineAdmissionState extends State<OnlineAdmission> {
                             borderRadius: BorderRadius.circular(8.0),
                           ),
                           child: DropdownButtonFormField(
-                              value: selectedGenderVal,
+                              value: controller.selectedGenderVal,
                               validator: (value) {
                                 if (value!.isEmpty) {
                                   return pleaseEnterGender;
@@ -244,7 +246,7 @@ class _OnlineAdmissionState extends State<OnlineAdmission> {
                         height: 15.h,
                       ),
                       CustomTextField(
-                        controller: controller.addressController.value,
+                        controller: _addressTEController,
 
                         hintext: address,
                         bordercolor: kPrimaryColor,
@@ -259,7 +261,7 @@ class _OnlineAdmissionState extends State<OnlineAdmission> {
                         height: 15.h,
                       ),
                       CustomTextField(
-                        controller: controller.aboutWebsiteController.value,
+                        controller: _websiteTEController,
 
                         hintext: howKnow,
                         bordercolor: kPrimaryColor,
@@ -274,11 +276,11 @@ class _OnlineAdmissionState extends State<OnlineAdmission> {
                         height: 20.h,
                       ),
                       Obx(() => CustomTextButton(
-                        isLoading: controller.isloading.value,
+                        isLoading: controller.inProgress,
                           text: " submit",
                           onTap: () {
                             if (formKey.currentState!.validate()) {
-                              onlineAdmissionApi();
+                              controller.postAddmissionRequest();
                             }
                           })),
                       SizedBox(
@@ -311,36 +313,5 @@ class _OnlineAdmissionState extends State<OnlineAdmission> {
     );
   }
 
-  void onlineAdmissionApi() async {
-    try {
-      controller.isloading.value =true;
-      var url = "$baseUrl/admission";
-      var data = {
-        "name": controller.nameController.value.text,
-        "email": controller.emailController.value.text,
-        "course": controller.selectedCourse.toString(),
-        "gender": selectedGenderVal.toString(),
-        "contact": controller.numberController.value.text,
-        "address": controller.addressController.value.text,
-        "website": controller.aboutWebsiteController.value.text
-      };
-      var body = json.encode(data);
-      var urlParse = Uri.parse(url);
-      var response = await http.post(urlParse,
-          body: body, headers: {"Content-Type": "application/json"});
-      var data2 = jsonDecode(response.body);
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        controller.isloading.value =false;
-        Get.snackbar("Successful", "Successfully Submitted");
-      }
-      debugPrint(data2.toString());
-    } on SocketException {
-      controller.isloading.value =false;
-      ToastMessage.error("No Internet");
-    } catch (e) {
-      controller.isloading.value =false;
-      ToastMessage.error("Something went wrong");
-      debugPrint(e.toString());
-    }
-  }
+
 }

@@ -7,6 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:lottie/lottie.dart';
 import 'package:universe_soft_it/resource/common_widget/screen_background.dart';
+import 'package:universe_soft_it/utils/routes/route_name.dart';
 
 import '../resource/image_path_string.dart';
 
@@ -36,13 +37,13 @@ class _SplashScreenState extends State<SplashScreen> {
     if(isLogin == true){
       Timer( const Duration(seconds: 3), () {
 
-        Navigator.pushReplacementNamed(context, '/homeScreen');
+        Navigator.pushReplacementNamed(context, RouteName.homeScreen);
       });
 
     }else{
       Timer( const Duration(seconds: 3), () {
 
-        Navigator.pushReplacementNamed(context, '/loginScreen');
+        Navigator.pushReplacementNamed(context, RouteName.loginScreen);
       });
 
     }

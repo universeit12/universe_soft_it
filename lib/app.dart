@@ -5,6 +5,8 @@ import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:universe_soft_it/utils/routes/route.dart';
 import 'package:universe_soft_it/utils/routes/route_name.dart';
 
+import 'bindings/controller_binding.dart';
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -34,8 +36,10 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
-        initialRoute: (screen != null)?screen :RouteName.signUpScreen,
+
+        initialRoute: (screen != null)?screen :RouteName.splashScreen,
         onGenerateRoute: Routes.generateRoute,
+        initialBinding: ControllerBinders(),
 
 
 

@@ -1,13 +1,11 @@
-import 'dart:convert';
+
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:universe_soft_it/resource/constant.dart';
 
 import 'package:universe_soft_it/resource/common_widget/screen_background.dart';
-import 'package:universe_soft_it/repository/free_seminar_controller.dart';
-import 'package:http/http.dart' as http;
-import 'package:universe_soft_it/resource/common_widget/toast_message.dart';
+
 import '../resource/bottom_app_bar/bottom_navigation_app_bar.dart';
 
 import '../resource/common_widget/custom_text_button.dart';
@@ -17,33 +15,28 @@ import '../resource/common_widget/header2.dart';
 import '../resource/common_widget/map_location.dart';
 import '../models/popular_course_model.dart';
 import '../resource/constant_string.dart';
+import '../view_model/free_seminar_view_model.dart';
 
 
 
 
-class FreeSeminarScreen extends StatefulWidget {
-  const FreeSeminarScreen({super.key});
-
-  @override
-  State<FreeSeminarScreen> createState() => _FreeSeminarScreenState();
-}
+class FreeSeminarScreen extends StatelessWidget {
+  FreeSeminarScreen({super.key});
 
 
-class _FreeSeminarScreenState extends State<FreeSeminarScreen> {
 
-  final controller = Get.put(FreeSeminarController());
-  _FreeSeminarScreenState(){
-    selectedVal = controller.courseList[0] ;
-   selectedTypeVal = controller.courseTypeList[0] ;
 
-  }
-  String selectedVal = "";
-  String selectedTypeVal = "";
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _numberController = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
 
 
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.find<FreeSeminarViewModel>();
     return Scaffold(
 
      resizeToAvoidBottomInset: false,
@@ -98,12 +91,12 @@ class _FreeSeminarScreenState extends State<FreeSeminarScreen> {
             ),
 
             Form(
-              key: controller.formKey ,
+              key: _formKey ,
               child: SingleChildScrollView(
                 child: Column(
                   children: [
                     SizedBox(height: 10.h,),
-                    CustomTextField(controller: controller.nameController,
+                    CustomTextField(controller: _nameController,
                 
                       hintext: enterName1,
                       bordercolor: Colors.black,
@@ -118,7 +111,7 @@ class _FreeSeminarScreenState extends State<FreeSeminarScreen> {
                     ),
                     SizedBox(height: 15.h,),
                     CustomTextField(
-                      controller: controller.emailController,
+                      controller: _emailController,
                       hintext: enterEmail,
                       bordercolor: Colors.black,
                       validator: controller.validateEmail,
@@ -158,7 +151,7 @@ class _FreeSeminarScreenState extends State<FreeSeminarScreen> {
                     SizedBox(height: 15.h,),
                 
                     CustomTextField(
-                      controller:controller.numberController,
+                      controller:_numberController,
                       hintext: whatappNumber,
                       bordercolor: Colors.black,
                       validator: controller.validateNumber,
@@ -175,44 +168,51 @@ class _FreeSeminarScreenState extends State<FreeSeminarScreen> {
                             borderRadius: BorderRadius.circular(8.0),
                           ),
                           child: DropdownButtonFormField(
-                            value: selectedTypeVal,
+                            value: controller.courseTypeList.contains(controller.selectedTypeVal)
+                                ? controller.selectedTypeVal
+                                : null, // Ensure selectedTypeVal is valid
                             isDense: true,
-                
                             decoration: const InputDecoration(
-                
                               hintText: selectSegmentType,
                               border: InputBorder.none,
                             ),
-                
-                            items: controller.courseTypeList.map(
-                                    (b){
-                                  return DropdownMenuItem(value: b,child: Text(b,style: const TextStyle(fontFamily: "FontMain4",fontSize: 14,color: Colors.black38),),);
-                                }
-                            ).toList(),
-                            onChanged: (value){
-                              setState(() {
-                                selectedTypeVal = value!;
-                              });
-                
+                            items: controller.courseTypeList.map((b) {
+                              return DropdownMenuItem(
+                                value: b,
+                                child: Text(
+                                  b,
+                                  style: const TextStyle(fontFamily: "FontMain4", fontSize: 14, color: Colors.black38),
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              controller.updateSelectedTypeVal(value!);
                             },
-                            validator: (value){
-                              if(value!.isEmpty){
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
                                 return pleaseSelectSeg;
-                
                               }
                               return null;
-                
                             },
-                          )),
+                          )
+                      ),
                     ),
                     const SizedBox(height: 30,),
                 
                 
                     Obx(() => CustomTextButton(
-                        text: submit, onTap: (){
+                        text: submit, onTap: () async {
                 
-                      if(controller.formKey.currentState!.validate()) {
-                        freeSeminarRegister();
+                      if(_formKey.currentState!.validate()) {
+
+                        final result = await controller.postFreeSeminar(name: _nameController.text,email: _emailController.text,course: controller.selectedCourse,whatsapp: _numberController.text);
+                        if(result){
+                          Get.snackbar("Successful", "Free seminar request successfully submitted");
+                        }
+                        else{
+                          Get.snackbar("Error", "Something went wrong");
+                        }
+
                 
                 
                 
@@ -220,7 +220,7 @@ class _FreeSeminarScreenState extends State<FreeSeminarScreen> {
                 
                 
                     },
-                      isLoading: controller.isLoading.value,
+                      isLoading: controller.inProgress,
                     )),
                     SizedBox(
                       height: 30.h,
@@ -256,53 +256,10 @@ class _FreeSeminarScreenState extends State<FreeSeminarScreen> {
 
         ),
       )),
-      bottomNavigationBar: const BottomAppBarNavigation(selectedItem: 2),
+      bottomNavigationBar: const BottomAppBarNavigation(selectedItem: 3),
 
     );
   }
 
-  void freeSeminarRegister()async{
 
-      try{
-        controller.isLoading.value = true;
-        var url = "$baseUrl/seminarRequest";
-        var data = {
-          "name":controller.nameController.text,
-          "email": controller.emailController.text,
-          "course": controller.selectedCourse.toString(),
-          "whatsapp": controller.numberController.text,
-          "segment" :selectedTypeVal.toString()
-
-        };
-
-        var body = json.encode(data);
-        var urlParse = Uri.parse(url);
-        var response = await http.post(
-            urlParse,
-            body: body,
-            headers: {
-              "Content-Type":"application/json"
-            }
-        );
-        var data2 = jsonDecode(response.body);
-        debugPrint(data2.toString());
-
-        if(response.statusCode == 200 || response.statusCode == 201){
-          controller.isLoading.value = false;
-
-          ToastMessage.success(submitSuccess);
-
-
-
-        }
-      }catch (e){
-        controller.isLoading.value = false;
-        Get.snackbar("Error", "Some thing went wrong");
-      }
-
-
-
-
-
-  }
 }
