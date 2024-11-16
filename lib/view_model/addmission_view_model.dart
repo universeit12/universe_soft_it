@@ -23,14 +23,25 @@ class AddmissionViewModel extends GetxController{
 
   var course = <PopularCourseModel>[].obs;
   var selectedCourse = Rxn<PopularCourseModel>();
+  final genderTypeList = ["Select Gender", "Male", "Female"];
 
 
 
   String selectedVal = "";
-  String selectedGenderVal = "";
+  String? selectedGenderVal;
+
+  // Reset methods
+  void resetSelectedCourse() {
+    selectedCourse.value = null;
+  }
+
+  void resetSelectedGender() {
+    selectedGenderVal = null;
+    update(); // Notify listeners for non-reactive fields like String
+  }
 
 
-  Future<bool> postAddmissionRequest({name,email,course, whatsapp,gender,contact,address,website}) async {
+  Future<bool> postAddmissionRequest({name,email,course,gender,contact,address,website}) async {
     _inProgress.value = true;
     Map<String, dynamic> requestBody = {
       "name": name,

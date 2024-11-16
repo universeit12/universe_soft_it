@@ -142,7 +142,7 @@ class FreeSeminarScreen extends StatelessWidget {
                               items: controller.course.map((course) {
                                 return DropdownMenuItem<PopularCourseModel>(
                                   value: course,
-                                  child: Text(course.title.toString(),style: const TextStyle(fontFamily: "FontMain4",fontSize: 14,color: Colors.black38),),
+                                  child: Text(course.title.toString(),style: const TextStyle(fontFamily: "FontMain4",fontSize: 14,color: Colors.black),),
                                 );
                               }).toList(),
                             )),
@@ -154,6 +154,7 @@ class FreeSeminarScreen extends StatelessWidget {
                       controller:_numberController,
                       hintext: whatappNumber,
                       bordercolor: Colors.black,
+                      keyboardType: TextInputType.number,
                       validator: controller.validateNumber,
                     ),
                 
@@ -172,8 +173,12 @@ class FreeSeminarScreen extends StatelessWidget {
                                 ? controller.selectedTypeVal
                                 : null, // Ensure selectedTypeVal is valid
                             isDense: true,
-                            decoration: const InputDecoration(
+                            decoration:  InputDecoration(
                               hintText: selectSegmentType,
+                              hintStyle:TextStyle(
+                              color: Colors.grey, // Hint text color
+                              fontSize: 12.0.sp,
+                            ),
                               border: InputBorder.none,
                             ),
                             items: controller.courseTypeList.map((b) {
@@ -181,7 +186,7 @@ class FreeSeminarScreen extends StatelessWidget {
                                 value: b,
                                 child: Text(
                                   b,
-                                  style: const TextStyle(fontFamily: "FontMain4", fontSize: 14, color: Colors.black38),
+                                  style: const TextStyle(fontFamily: "FontMain4", fontSize: 14, color: Colors.black),
                                 ),
                               );
                             }).toList(),
@@ -205,7 +210,14 @@ class FreeSeminarScreen extends StatelessWidget {
                 
                       if(_formKey.currentState!.validate()) {
 
-                        final result = await controller.postFreeSeminar(name: _nameController.text,email: _emailController.text,course: controller.selectedCourse,whatsapp: _numberController.text);
+                        final result = await controller.postFreeSeminar(name: _nameController.text,email: _emailController.text,course: controller.selectedCourse.value?.title,whatsapp: _numberController.text);
+                        _nameController.clear();
+                        _emailController.clear();
+                        controller.resetSelectedCourse();
+                        _numberController.clear();
+                        controller.resetSelectedSegmentType();
+
+
                         if(result){
                           Get.snackbar("Successful", "Free seminar request successfully submitted");
                         }

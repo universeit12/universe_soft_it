@@ -12,5 +12,12 @@ class BlogRepository{
     return response;
   }
 
+  static Future<dynamic> postBlogComment(requestBody) async {
+
+    final NetworkResponse response = await NetworkCaller.postRequest(url: Urls.blogCommentUrl,body: requestBody);
+
+    return response;
+  }
+
 
 }

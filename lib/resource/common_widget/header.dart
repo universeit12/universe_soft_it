@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
+import 'package:universe_soft_it/view_model/notification_view_model.dart';
 import '../image_path_string.dart';
 import '../../repository/notification_controller.dart';
 import '../../view/notification_screen.dart';
@@ -11,7 +12,7 @@ class Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final NotificationController notificationController = Get.put(NotificationController());
+    final  notificationController = Get.find<NotificationViewModel>();
     return  Row(
 
 

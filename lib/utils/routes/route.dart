@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:universe_soft_it/utils/routes/route_name.dart';
 import 'package:universe_soft_it/view/all_course_screen.dart';
+import 'package:universe_soft_it/view/all_faculty_screen.dart';
 import 'package:universe_soft_it/view/free_seminar_screen.dart';
 import 'package:universe_soft_it/view/home_screen.dart';
 import 'package:universe_soft_it/view/login_screen1.dart';
@@ -30,11 +31,12 @@ class Routes{
         return MaterialPageRoute(builder: (context) => const AllPopularCourse(),);
       case RouteName.allBlogScreen:
         return MaterialPageRoute(builder: (context) => const AllBlog(),);
-
+      case RouteName.allFacultyScreen:
+        return MaterialPageRoute(builder: (context) => const AllFacultyMember(),);
       case RouteName.freeSeminarScreen:
         return MaterialPageRoute(builder: (context) => FreeSeminarScreen(),);
       case RouteName.onlineAdmission:
-        return MaterialPageRoute(builder: (context) => const OnlineAdmission(),);
+        return MaterialPageRoute(builder: (context) =>  OnlineAdmission(),);
       case RouteName.seminarScreen:
         return MaterialPageRoute(builder: (context) => SeminarScreen(),);
 

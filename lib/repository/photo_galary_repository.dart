@@ -3,12 +3,13 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:universe_soft_it/models/photo_galary_model.dart';
 
+import '../resource/urls.dart';
 
-class PhotoGalleryService {
-  final String apiUrl = "https://bifdt-server-ashikur.vercel.app/studentGallery";
 
-  Future<List<PhotoGalaryImage>> fetchGalleryImages() async {
-    final response = await http.get(Uri.parse(apiUrl));
+class StudentPhotoGalleryRepository {
+
+  static Future<List<PhotoGalaryImage>> fetchGalleryImages() async {
+    final response = await http.get(Uri.parse(Urls.studentPhotoGalaryUrl));
 
     if (response.statusCode == 200) {
       List jsonResponse = json.decode(response.body);

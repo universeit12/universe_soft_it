@@ -51,10 +51,10 @@ class PopularCourse extends StatelessWidget {
             visible: !controller.inProgress,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              itemCount: controller.showingProduct.length>10?
-              10: controller.showingProduct.length,
+              itemCount: controller.popularCourseList.length>10?
+              10: controller.popularCourseList.length,
               itemBuilder: (context, index) {
-                PopularCourseModel data = controller.showingProduct[index];
+                PopularCourseModel data = controller.popularCourseList[index];
                 return SizedBox(
                   width: 220.w,
                   child: Card(
@@ -66,7 +66,7 @@ class PopularCourse extends StatelessWidget {
                     ),
                     child: InkWell(
                       onTap: (){
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => CourseDetailsScreen(course: data),));
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => CourseDetailsScreen(course: controller.popularCourseList[index]),));
 
                       },
                       child: Column(

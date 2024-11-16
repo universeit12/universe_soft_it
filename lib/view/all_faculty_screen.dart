@@ -1,42 +1,30 @@
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:http/http.dart' as http;
+import 'package:get/get.dart';
+import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:lottie/lottie.dart';
 import 'package:universe_soft_it/resource/bottom_app_bar/bottom_navigation_app_bar.dart';
 import 'package:universe_soft_it/view/faculty_details_screen.dart';
+import 'package:universe_soft_it/view_model/faculty_view_model.dart';
 import '../resource/constant.dart';
-
 import '../resource/common_widget/header1.dart';
 import '../resource/common_widget/loading_widget.dart';
 import '../resource/common_widget/call_now_widget.dart';
 import '../models/faculty_model.dart';
 import '../resource/constant_string.dart';
 import 'course_search_screen.dart';
-
 import '../resource/common_widget/footer.dart';
 import '../resource/common_widget/map_location.dart';
 
-class AllFacultyMember extends StatefulWidget {
+class AllFacultyMember extends StatelessWidget {
   const AllFacultyMember({super.key});
 
-  @override
-  State<AllFacultyMember> createState() => _AllFacultyMemberState();
-}
-
-class _AllFacultyMemberState extends State<AllFacultyMember> {
-  List <FacultyMemberModel> allFacultyList =[];
-  List <FacultyMemberModel> showingFacultyList =[];
 
 
-  @override
-  void initState() {
-    showingFacultyList = allFacultyList;
-    super.initState();
-  }
   @override
   Widget build(BuildContext context) {
+    final controller = Get.find<FacultyViewModel>();
 
 
 
@@ -71,30 +59,12 @@ class _AllFacultyMemberState extends State<AllFacultyMember> {
                         ],
                       ),
                       SizedBox(height: 9.2.h,),
-                      CourseSearch(onchanged: (value){
-                        if(value!.isNotEmpty){
-
-                          setState(() {
-                            showingFacultyList = allFacultyList.where((element) => element.name!.toLowerCase().contains(value.toLowerCase())).toList();
-
-                          });
-
-
-
-
-
-
-                        }
-                        else{
-                          setState(() {
-                            showingFacultyList = allFacultyList;
-                          });
-
-
-                        }
-
-
-                      },hintext: searchForFacultyMember,),
+                      CourseSearch(
+                        onchanged: (value) {
+                          controller.filterCourses(value ?? '');
+                        },
+                        hintext: searchForCourse,
+                      ),
                     ],
                   ),
                 )),
@@ -119,99 +89,123 @@ class _AllFacultyMemberState extends State<AllFacultyMember> {
             ),
             //SizedBox(height: 5.h,),
 
-            SizedBox(
+            Obx(() => SizedBox(
               height: 390.h,
-              child: FutureBuilder(
-                  future: getData(),
-                  builder: (context,snapshot) {
-                    if(snapshot.hasData){
-                      return GridView.builder(
-                        gridDelegate:  const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
-                        scrollDirection: Axis.vertical,
-                        itemCount: showingFacultyList.length,
-                        itemBuilder: (context, index) {
-                          FacultyMemberModel data = showingFacultyList[index];
-                          return SizedBox(
-                            width: 200.h,
-                            child: Card(
-                              clipBehavior: Clip.antiAlias,
-                              elevation: 15,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10.r),
+              child: Visibility(
 
-                              ),
-                              child: InkWell(
-                                onTap: (){
-
-                                  // Here we will open details our page
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => FacultyDetails(faculty:data, onTap: (){
-                                    Navigator.push(context, MaterialPageRoute(builder: (context) => const AllFacultyMember(),));
-                                  }),));
-
-
-
-                                },
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    //SizedBox(height: 10.h,),
-
-                                    SizedBox(
-                                      height:125.h,
-
-                                      child: Image.network(data.image.toString(),height: 125.h,width: 200.w,fit: BoxFit.fill,),
-                                    ),
-                                    Column(
-
-
-                                      children: [
-
-                                        Text(data.name.toString(),style:  TextStyle(
-                                          fontSize: 15.sp,fontWeight: FontWeight.bold,fontFamily: "FontMain2",letterSpacing: 0.5
-
-                                        ),maxLines: 1,),
-                                        Text(data.designation.toString(),style:TextStyle(fontSize: 13.sp,
-                                            color: Colors.black,fontWeight: FontWeight.bold,fontFamily: "FontMain2",letterSpacing: 0.5
-                                        ),maxLines: 1,),
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            Text(experience,style:TextStyle(fontSize: 11.sp,
-                                                fontWeight: FontWeight.w700)),
-                                            Text(data.jobExperience.toString(),style:TextStyle(fontSize: 11.sp,
-                                                fontWeight: FontWeight.w700,
-                                                color: Colors.black
-                                            ),maxLines: 1,),
-                                            Text(plus,style:TextStyle(fontSize: 11.sp,
-                                                fontWeight: FontWeight.w700)),
-                                          ],
+                replacement: const Center(child: CustomLoadingWidget()),
+                visible: !controller.inProgress,
+                child: GridView.builder(
+                  shrinkWrap: true,
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+                    scrollDirection: Axis.vertical,
+                    itemCount: controller.showingFacultyList.length,
+                    itemBuilder: (context, index) {
+                      FacultyMemberModel data = controller.showingFacultyList[index];
+                      return SizedBox(
+                        width: 200.h,
+                        child: Card(
+                          clipBehavior: Clip.antiAlias,
+                          elevation: 15,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.r),
+                          ),
+                          child: InkWell(
+                            onTap: () {
+                              // Navigate to faculty details page
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => FacultyDetails(
+                                    faculty: data,
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => const AllFacultyMember(),
                                         ),
-
-
-
-
-
-
-                                      ],
-
+                                      );
+                                    },
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  height: 125.h,
+                                  child: Image.network(
+                                    data.image.toString(),
+                                    height: 125.h,
+                                    width: 200.w,
+                                    fit: BoxFit.fill,
+                                  ),
+                                ),
+                                Column(
+                                  children: [
+                                    Text(
+                                      data.name.toString(),
+                                      style: TextStyle(
+                                        fontSize: 15.sp,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: "FontMain2",
+                                        letterSpacing: 0.5,
+                                      ),
+                                      maxLines: 1,
                                     ),
-
+                                    Text(
+                                      data.designation.toString(),
+                                      style: TextStyle(
+                                        fontSize: 13.sp,
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: "FontMain2",
+                                        letterSpacing: 0.5,
+                                      ),
+                                      maxLines: 1,
+                                    ),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          experience,
+                                          style: TextStyle(
+                                            fontSize: 11.sp,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                        Text(
+                                          data.jobExperience.toString(),
+                                          style: TextStyle(
+                                            fontSize: 11.sp,
+                                            fontWeight: FontWeight.w700,
+                                            color: Colors.black,
+                                          ),
+                                          maxLines: 1,
+                                        ),
+                                        Text(
+                                          plus,
+                                          style: TextStyle(
+                                            fontSize: 11.sp,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ],
                                 ),
-                              ),
+                              ],
                             ),
-                          );
-
-                        },
+                          ),
+                        ),
                       );
+                    },
+                  )
 
-                    }
-                    else{
-                      return const CustomLoadingWidget();
-                    }
-                  }
               ),
-            ),
+            )),
+
             SizedBox(
               height: 20.h,
             ),
@@ -237,19 +231,5 @@ class _AllFacultyMemberState extends State<AllFacultyMember> {
     );
 
   }
-  Future<List<FacultyMemberModel>> getData()async{
-    final response = await http.get(Uri.parse("$baseUrl/faculty"));
 
-    var data = jsonDecode(response.body.toString());
-
-    if(response.statusCode == 200){
-      for(Map<String, dynamic> index in data){
-        allFacultyList.add(FacultyMemberModel.fromJson(index));
-      }
-      return allFacultyList ;
-    }
-    else{
-      return allFacultyList ;
-    }
-  }
 }

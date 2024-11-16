@@ -10,6 +10,7 @@ import 'package:universe_soft_it/view/faculty_member_screen.dart';
 import 'package:universe_soft_it/view/all_course_screen.dart';
 import 'package:universe_soft_it/resource/common_widget/header.dart';
 import 'package:universe_soft_it/view/popular_course_screen.dart';
+import 'package:universe_soft_it/view_model/notification_view_model.dart';
 import '../resource/bottom_app_bar/bottom_navigation_app_bar.dart';
 
 import 'package:lottie/lottie.dart';
@@ -30,7 +31,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final notificationController = Get.put(NotificationController());
+  final notificationController = Get.find<NotificationViewModel>();
   @override
   void initState() {
     // TODO: implement initState

@@ -65,10 +65,10 @@ class BlogScreen extends StatelessWidget {
             visible: !controller.inProgress,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              itemCount: controller.blogList.length>20?
-              20:controller.blogList.length,
+              itemCount: controller.allBlogs.length>20?
+              20:controller.allBlogs.length,
               itemBuilder: (context, index) {
-                final blogs = controller.blogList[index];
+                final blogs = controller.allBlogs[index];
 
                 return SizedBox(
                   width: 250.w,
@@ -95,7 +95,7 @@ class BlogScreen extends StatelessWidget {
 
                         children: [
                           blogs.videoUrl == null || blogs.videoUrl!.isEmpty
-                              ?Image.network(controller.blogList[index].blogImageUrl.toString(),height: 120.h,width: 350.w,fit: BoxFit.fill,)
+                              ?Image.network(controller.allBlogs[index].blogImageUrl.toString(),height: 120.h,width: 350.w,fit: BoxFit.fill,)
                               : ClipRRect(
                             borderRadius: BorderRadius.all(Radius.circular(10.r)),
                             child: NetworkVideoPlayer(videoUrl: blogs.videoUrl.toString(),autoplay: false,
@@ -107,7 +107,7 @@ class BlogScreen extends StatelessWidget {
 
                           Expanded(
                             child: Center(
-                              child: Text(controller.blogList[index].title.toString(),style: TextStyle(fontSize: 16.sp,
+                              child: Text(controller.allBlogs[index].title.toString(),style: TextStyle(fontSize: 16.sp,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.grey.shade800,fontFamily: "FontMain2",letterSpacing: 0.5
                               ),),
@@ -116,7 +116,7 @@ class BlogScreen extends StatelessWidget {
 
 
                           Expanded(
-                            child: Html(data: controller.blogList[index].description,
+                            child: Html(data: controller.allBlogs[index].description,
                               style: {
                                 "*": Style(
                                     maxLines: 1,
@@ -168,7 +168,7 @@ class BlogScreen extends StatelessWidget {
                                     color: kOrangeColor,
                                     borderRadius: BorderRadius.all(Radius.circular(10.r)),
                                   ),
-                                  child: Center(child: Text(controller.blogList[index].date.toString(),style:  TextStyle(fontSize: 12.sp,color: Colors.white),))),
+                                  child: Center(child: Text(controller.allBlogs[index].date.toString(),style:  TextStyle(fontSize: 12.sp,color: Colors.white),))),
                             ],
                           ),
                           SizedBox(height: 10.h,),

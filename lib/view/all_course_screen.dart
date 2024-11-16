@@ -99,8 +99,7 @@ class AllPopularCourse extends StatelessWidget {
                 child: Visibility(
                     replacement: const Center(child: CustomLoadingWidget()),
                     visible: !controller.inProgress,
-                    child: Expanded(
-                      child: GridView.builder(
+                    child: GridView.builder(
                         shrinkWrap: true,
                         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
                         scrollDirection: Axis.vertical,
@@ -198,7 +197,7 @@ class AllPopularCourse extends StatelessWidget {
                           );
                         },
                       ),
-                    ),
+
                   ),
 
               )),

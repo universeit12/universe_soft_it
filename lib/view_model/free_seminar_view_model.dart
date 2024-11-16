@@ -29,7 +29,17 @@ class FreeSeminarViewModel extends GetxController{
 
   }
   String selectedVal = "";
-  String selectedTypeVal = "";
+  String? selectedTypeVal = "";
+
+  // Reset methods
+  void resetSelectedCourse() {
+    selectedCourse.value = null;
+  }
+
+  void resetSelectedSegmentType() {
+    selectedTypeVal = courseTypeList[0]; // Default to the first value in the list
+    update();
+  }
 
   final courseList = [
     selectCourse,

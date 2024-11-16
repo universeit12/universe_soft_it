@@ -2,11 +2,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:universe_soft_it/models/photo_galary_model.dart';
-import 'package:universe_soft_it/repository/photo_galary_sevices.dart';
+import 'package:universe_soft_it/repository/photo_galary_repository.dart';
 
 
 
-class PhotoGalleryController extends GetxController {
+class PhotoGalleryViewModel extends GetxController {
   var isLoading = true.obs;
   var galleryImages = <PhotoGalaryImage>[].obs;
   var categories = <String>[].obs;
@@ -21,7 +21,7 @@ class PhotoGalleryController extends GetxController {
   void fetchGalleryImages() async {
     try {
       isLoading(true);
-      var images = await PhotoGalleryService().fetchGalleryImages();
+      var images = await StudentPhotoGalleryRepository.fetchGalleryImages();
       galleryImages.assignAll(images);
       categories.assignAll(images.map((e) => e.category!).toSet().toList());
       selectedCategory.value = categories.first; // Select the first category by default

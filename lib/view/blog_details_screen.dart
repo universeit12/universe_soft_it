@@ -8,28 +8,32 @@ import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:http/http.dart' as http;
+import 'package:universe_soft_it/view_model/blog_view_model.dart';
 import '../resource/bottom_app_bar/bottom_navigation_app_bar.dart';
 import '../resource/constant.dart';
-
 import '../resource/common_widget/custom_text_button.dart';
 import '../resource/common_widget/custom_text_filed.dart';
 import '../resource/common_widget/call_now_widget.dart';
 import '../resource/constant_string.dart';
 import '../utils/utils.dart';
-
 import '../resource/common_widget/youtube_player.dart';
 import '../models/blog_model.dart';
 import '../resource/common_widget/footer.dart';
 import '../resource/common_widget/map_location.dart';
-import '../repository/blog_details_controller.dart';
 import 'package:path_provider/path_provider.dart';
 
 class BlogDetails extends StatelessWidget {
   final BlogModel blog;
 
   // We create a controller for blog details
-  final BlogDetailsController controller = Get.put(BlogDetailsController());
+  final  controller = Get.find<BlogViewModel>();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final _nameTEController = TextEditingController();
+  final _contactTEController = TextEditingController();
+  final _commentTEController = TextEditingController();
+  final nameFocusNode = FocusNode();
+  final numberFocusNode = FocusNode();
+  final commentFocusNode = FocusNode();
 
   BlogDetails({super.key, required this.blog});
 
@@ -197,15 +201,15 @@ class BlogDetails extends StatelessWidget {
                               SizedBox(
                                 height: 45,
                                 child: CustomTextField(
-                                  controller: controller.nameController.value,
-                                  focusNode: controller.nameFocusNode.value,
+                                  controller: _nameTEController,
+                                  focusNode:nameFocusNode,
                                   hintext: yourName,
                                   bordercolor: Colors.black,
                                   onFieldSubmitted: (value) {
                                     Utils.fieldFocusChange(
                                         context,
-                                        controller.nameFocusNode.value,
-                                        controller.numberFocusNode.value);
+                                        nameFocusNode,
+                                        numberFocusNode);
                                   },
                                   validator: (value) {
                                     if (value!.isEmpty) {
@@ -221,17 +225,16 @@ class BlogDetails extends StatelessWidget {
                               SizedBox(
                                 height: 45,
                                 child: CustomTextField(
-                                  controller:
-                                      controller.contactController.value,
-                                  focusNode: controller.numberFocusNode.value,
+                                  controller:_contactTEController,
+                                  focusNode: numberFocusNode,
                                   hintext: yourContactNumber,
                                   bordercolor: Colors.black,
                                   keyboardType: TextInputType.phone,
                                   onFieldSubmitted: (value) {
                                     Utils.fieldFocusChange(
                                         context,
-                                        controller.numberFocusNode.value,
-                                        controller.commentFocusNode.value);
+                                        numberFocusNode,
+                                        commentFocusNode);
                                   },
                                   validator: (value) {
                                     if (value!.isEmpty) {
@@ -248,8 +251,8 @@ class BlogDetails extends StatelessWidget {
                                 height: 45,
                                 child: CustomTextField(
                                   controller:
-                                      controller.commentController.value,
-                                  focusNode: controller.commentFocusNode.value,
+                                      _commentTEController,
+                                  focusNode: commentFocusNode,
                                   hintext: leaveComment,
                                   bordercolor: Colors.black,
                                   keyboardType: TextInputType.name,
@@ -267,17 +270,20 @@ class BlogDetails extends StatelessWidget {
                               Obx(
                                 () => CustomTextButton(
                                   text: submit,
-                                  onTap: () {
-                                    if (controller
-                                        .nameController.value.text.isNotEmpty) {
-                                      if (controller.contactController.value
-                                          .text.isNotEmpty) {
-                                        if (controller.contactController.value
-                                                .text.length ==
-                                            11) {
-                                          if (controller.commentController.value
-                                              .text.isNotEmpty) {
-                                            controller.blogCommentApi();
+                                  onTap: () async {
+                                    if (_nameTEController.text.isNotEmpty) {
+                                      if (_contactTEController.text.isNotEmpty) {
+                                        if (_contactTEController.text.length == 11) {
+                                          if (_commentTEController.text.isNotEmpty) {
+                                            final result = await controller.postBlogComment(name: _nameTEController.text,contact: _contactTEController.text,comment: _commentTEController.text);
+
+                                            if(result){
+                                              Get.showSnackbar(const GetSnackBar(title: "Success",message: "Successfully Comment Submitted",duration: Duration(seconds: 3),));
+                                            }
+                                            else{
+                                              Get.showSnackbar(const GetSnackBar(title: "Error",message: "Some thing went wrong!",duration: Duration(seconds: 3),));
+
+                                            }
                                           } else {
                                             Get.snackbar("Error",
                                                 "Please enter a comment");
@@ -298,7 +304,7 @@ class BlogDetails extends StatelessWidget {
                                   height: 40.h,
                                   width: 200.w,
                                   fontSize: 18.sp,
-                                  isLoading: controller.isLoading.value,
+                                  isLoading: controller.inProgress,
                                 ),
                               ),
                             ],

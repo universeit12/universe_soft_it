@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:universe_soft_it/repository/photo_gallery_controller.dart';
+
+import '../../view_model/student_photo_gallery_view_model.dart';
+
 
 
 class PhotoGalleryButtons extends StatelessWidget {
-  final PhotoGalleryController controller = Get.put(PhotoGalleryController());
+  final  controller = Get.find<PhotoGalleryViewModel>();
 
    PhotoGalleryButtons({super.key});
 

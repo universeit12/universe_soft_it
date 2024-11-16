@@ -1,32 +1,23 @@
-import 'dart:convert';
+
 
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:lottie/lottie.dart';
 import 'package:marquee/marquee.dart';
-import 'package:html/dom.dart' as dom;
-import "package:html/parser.dart" as html_parser;
 import 'package:readmore/readmore.dart';
-import 'package:share_plus/share_plus.dart';
-
-import 'package:universe_soft_it/repository/course_details_controller.dart';
-import 'package:youtube_player_flutter/youtube_player_flutter.dart';
-
+import 'package:universe_soft_it/resource/common_widget/loading_widget.dart';
 import '../resource/bottom_app_bar/bottom_navigation_app_bar.dart';
-
 import '../models/carrer_objective_model.dart';
 import '../models/course_category_model.dart';
 import '../resource/common_widget/call_now_widget.dart';
-import '../resource/constant_string.dart';
 import '../resource/common_widget/youtube_player.dart';
+import '../view_model/course_details_view_model.dart';
 import 'online_admission_screen.dart';
 import '../resource/common_widget/footer.dart';
-
 import '../resource/common_widget/map_location.dart';
 import '../models/popular_course_model.dart';
-
 import '../models/course_semister_model.dart';
 
 class CourseDetailsScreen extends StatefulWidget {
@@ -40,114 +31,16 @@ class CourseDetailsScreen extends StatefulWidget {
 
 class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
   String? videoId;
-  List<CarrerObjectiveModel> popularCourseList = [];
-  List<CourseCategoryModel> courseCategory = [];
-  List<CourseSemesterModel> semesterCategory = [];
 
-  @override
-  void initState() {
-    super.initState();
-
-    extractTextFromHtml(widget.course.admissionNotice.toString());
-    extractTextFromHtml2(widget.course.bangla.toString());
-    videoId = YoutubePlayer.convertUrlToId(widget.course.videoUrl.toString());
-  }
-
-  String extractedText = '';
-  String extractedText2 = '';
-
-  void extractTextFromHtml(String htmlString) {
-    dom.Document document = html_parser.parse(htmlString);
-    String text = document.body!.text;
-    setState(() {
-      extractedText = text;
-    });
-  }
-
-  void extractTextFromHtml2(String htmlString) {
-    dom.Document document = html_parser.parse(htmlString);
-    String text = document.body!.text;
-    setState(() {
-      extractedText2 = text;
-    });
-  }
-
-  void _shareCourseDetails() {final shareText = """Course Title: ${widget.course.title}
-Description: ${widget.course.description?.replaceAll(RegExp(r'<[^>]*>'), '')}
-Watch the course video on YouTube: ${widget.course.videoUrl.toString()}
-Click the link to watch the video and learn more about the course.
-For More Details Visit Our Website: https://bifdt.info/
-  """;
-
-    Share.share(shareText);
-  }
-
-  Future<List<CourseCategoryModel>> fetchCourseCategory(courseId) async {
-    courseCategory.clear();
-    final response =
-        await http.get(Uri.parse('$baseUrl/courseCategory/course/$courseId'));
-    debugPrint(response.statusCode.toString());
-    var data = jsonDecode(response.body.toString());
-    debugPrint(response.body.toString());
-    if (response.statusCode == 200) {
-      for (Map<String, dynamic> index in data) {
-        courseCategory.add(CourseCategoryModel.fromJson(index));
-      }
-      return courseCategory;
-    } else {
-      return courseCategory;
-    }
-  }
-
-  Future<List<CarrerObjectiveModel>> fetchCarrerObjective(courseId) async {
-    popularCourseList.clear();
-    debugPrint("courseId");
-
-    debugPrint(courseId);
-    final response =
-        await http.get(Uri.parse('$baseUrl/objectives/course/$courseId'));
-    debugPrint(response.statusCode.toString());
-    var data = jsonDecode(response.body.toString());
-    debugPrint(response.body.toString());
-    if (response.statusCode == 200) {
-      for (Map<String, dynamic> index in data) {
-        popularCourseList.add(CarrerObjectiveModel.fromJson(index));
-      }
-      return popularCourseList;
-    } else {
-      return popularCourseList;
-    }
-  }
-
-  Future<List<CourseSemesterModel>> fetchSemesterWithSpecificCourse(
-      catagoryId) async {
-    semesterCategory.clear();
-    debugPrint("CatagoryId");
-
-    debugPrint(catagoryId);
-    final response = await http
-        .get(Uri.parse('$baseUrl/semesterByCourse/course/$catagoryId'));
-    debugPrint(response.statusCode.toString());
-    var data = jsonDecode(response.body.toString());
-    debugPrint(response.body.toString());
-    if (response.statusCode == 200) {
-      for (Map<String, dynamic> index in data) {
-        semesterCategory.add(CourseSemesterModel.fromJson(index));
-      }
-      return semesterCategory;
-    } else {
-      return semesterCategory;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
-    Get.put(CourseDetailsController());
+    final controller = Get.put(CourseDetailsViewModel(widget.course));
     return Scaffold(
       appBar: AppBar(
         actions: [
           InkWell(
-            onTap: _shareCourseDetails,
+            onTap: controller.shareCourseDetails,
             child: Container(
               height: 33.h,
               width: 90.h,
@@ -182,8 +75,8 @@ For More Details Visit Our Website: https://bifdt.info/
           children: [
             _buildYoutubeVideoSection(),
             SizedBox(height: 20.h),
-            _buildCourseTitleNotice(context),
-            _buildCourseDetails(),
+            _buildCourseTitleNotice(context,controller),
+            _buildCourseDetails(controller),
             const SizedBox(
               height: 10,
             ),
@@ -200,7 +93,7 @@ For More Details Visit Our Website: https://bifdt.info/
               padding: EdgeInsets.only(left: 16, right: 16),
               child: Divider(),
             ),
-            _buildCareerObjective(),
+            _buildCareerObjective(controller),
             SizedBox(
               height: 20.h,
             ),
@@ -240,7 +133,7 @@ For More Details Visit Our Website: https://bifdt.info/
     );
   }
 
-  Widget _buildCourseTitleNotice(BuildContext context) {
+  Widget _buildCourseTitleNotice(BuildContext context,controller) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -269,7 +162,7 @@ For More Details Visit Our Website: https://bifdt.info/
             Column(
               children: [
                 Text(
-                  extractedText2,
+                  controller.extractedText2.value.toString(),
                   style: const TextStyle(
                     color: Colors.red,
                     fontFamily: "FontMain2",
@@ -294,7 +187,7 @@ For More Details Visit Our Website: https://bifdt.info/
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const OnlineAdmission(),
+                            builder: (context) =>  OnlineAdmission(),
                           ),
                         );
                       },
@@ -326,7 +219,7 @@ For More Details Visit Our Website: https://bifdt.info/
                   height: 30.h,
                   color: Colors.red,
                   child: Marquee(
-                    text: extractedText,
+                    text: controller.extractedText.value.toString(),
                     style: TextStyle(color: Colors.white, fontSize: 16.sp),
                     scrollAxis: Axis.horizontal,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -360,504 +253,142 @@ For More Details Visit Our Website: https://bifdt.info/
     );
   }
 
-  FutureBuilder<List<CarrerObjectiveModel>> _buildCareerObjective() {
-    return FutureBuilder<List<CarrerObjectiveModel>>(
-      future: fetchCarrerObjective(widget.course.sId),
-      builder: (context, snapshot) {
-        debugPrint(snapshot.data.toString());
-        if (snapshot.hasData && popularCourseList.isNotEmpty) {
-          // Use a Column instead of ListView.builder when nested inside another scrollable
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: popularCourseList.length,
-              itemBuilder: (context, index) {
-                final objective = popularCourseList[index];
-                return ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: objective.objectiveFAQ!.length,
-                  itemBuilder: (context, index2) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          objective.objectiveFAQ![index2].question.toString(),
-                          style: const TextStyle(
-                              fontSize: 16,
-                              fontFamily: "FontMain2",
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 0.75),
-                        ),
-                        ReadMoreText(
-                          objective.objectiveFAQ![index2].answer.toString(),
-                          trimMode: TrimMode.Line,
-                          trimLines: 2,
-                          colorClickableText: Colors.pink,
-                          trimCollapsedText: 'Show more',
-                          trimExpandedText: 'Show less',
-                          moreStyle: const TextStyle(
-                              fontSize: 14,
-                              fontFamily: "FontMain2",
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 0.75),
-                        ),
-                        const SizedBox(height: 10),
-                      ],
-                    );
-                  },
-                );
-              },
-            ),
+  Widget _buildCareerObjective(controller) {
+    return Obx(() => Visibility(
+      replacement: const Center(child: CustomLoadingWidget()),
+      visible: !controller.inProgress,
+      child: ListView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: controller.carerObjectiveList.length,
+        itemBuilder: (context, index) {
+          final objective = controller.carerObjectiveList[index];
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (var faq in objective.objectiveFAQ ?? [])
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      faq.question.toString(),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontFamily: "FontMain2",
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.75,
+                      ),
+                    ),
+                    ReadMoreText(
+                      faq.answer.toString(),
+                      trimMode: TrimMode.Line,
+                      trimLines: 2,
+                      colorClickableText: Colors.pink,
+                      trimCollapsedText: 'Show more',
+                      trimExpandedText: 'Show less',
+                      moreStyle: const TextStyle(
+                        fontSize: 14,
+                        fontFamily: "FontMain2",
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.75,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                  ],
+                ),
+            ],
           );
-        } else {
-          // Data is empty
-          return const Center(
-            child: Text('No career objectives found'),
-          );
-        }
-      },
-    );
+        },
+      ),
+    ));
   }
 
-  Widget _buildCourseDetails() {
-    return SizedBox(
+
+  Widget _buildCourseDetails(controller) {
+    return Obx(() => SizedBox(
       height: 620.h,
       child: Padding(
         padding: EdgeInsets.all(10.0.r),
-        child: FutureBuilder<List<CourseCategoryModel>>(
-            future: fetchCourseCategory(widget.course.sId),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return DefaultTabController(
-                  length: courseCategory.length,
-                  child: Column(
-                    children: [
-                      TabBar(
-                        tabs: courseCategory.map((category) {
-                          return Tab(
-                            child: Text(
-                              "${category.duration} ${category.type}", // Display category information
-                              style: TextStyle(
-                                  fontSize: 15.sp,
-                                  fontWeight: FontWeight.w600,
-                                  fontFamily: "FontMain2",
-                                  letterSpacing: .5),
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                      SizedBox(
-                        height: 10.h,
-                      ),
-                      Expanded(
-                        child: TabBarView(
-                          children: courseCategory.map((category) {
-                            return SingleChildScrollView(
-                              child: Column(
-                                children: [
-                                  SizedBox(
-                                    height: 8.h,
-                                  ),
-                                  _buildCustomContainer(
-                                      title:
-                                          "     Course Title           :       ",
-                                      details: category.name.toString(),
-                                      color: Colors.red),
-                                  _buildCustomContainer(
-                                      title: "      Course Duration  :       ",
-                                      details:
-                                          category.durationDetails.toString(),
-                                      color: Colors.green.withOpacity(0.7)),
-                                  _buildCustomContainer(
-                                      title: "     Regular Batch      :       ",
-                                      details: category.regularBatch.toString(),
-                                      color: Colors.black26),
-                                  _buildCustomContainer(
-                                      title: "     Executive Batch   :       ",
-                                      details:
-                                          category.executiveBatch.toString(),
-                                      color: Colors.pink.withOpacity(0.7)),
-                                  _buildCustomContainer(
-                                      title:
-                                          "     Total Classes        :       ",
-                                      details: category.totalClass.toString(),
-                                      color: Colors.purple.withOpacity(0.7)),
-                                  _buildCustomContainer(
-                                      title:
-                                          "     Qualification         :       ",
-                                      details:
-                                          category.qualification.toString(),
-                                      color: Colors.green.withOpacity(0.7)),
-                                  _buildCustomContainer(
-                                      title:
-                                          "      Course Fee           :       ",
-                                      details: category.courseFee.toString(),
-                                      color: Colors.red),
-                                  SizedBox(
-                                    height: 30.h,
-                                  ),
-                                  SizedBox(
-                                    height: 400,
-                                    child: FutureBuilder<
-                                        List<CourseSemesterModel>>(
-                                      future: fetchSemesterWithSpecificCourse(
-                                          category.sId),
-                                      builder: (context, snapshot) {
-                                        if (snapshot.hasData &&
-                                            snapshot.data != null) {
-                                          final semesterCategory =
-                                              snapshot.data!;
-
-                                          return ListView.builder(
-                                            shrinkWrap: true,
-                                            physics:
-                                                const NeverScrollableScrollPhysics(),
-                                            itemCount: semesterCategory.length,
-                                            itemBuilder: (context, index) {
-                                              final semester =
-                                                  semesterCategory[index];
-
-                                              if (category.sId ==
-                                                  semester.courseId) {
-                                                // Calculate total credits for the semester as a double
-                                                int totalCredits = semester
-                                                            .subjects !=
-                                                        null
-                                                    ? semester.subjects!.fold(
-                                                        0,
-                                                        (int sum, subject) {
-                                                          // Convert the subject's credit from String to double
-                                                          int creditValue = 0;
-                                                          if (subject.credit !=
-                                                              null) {
-                                                            try {
-                                                              creditValue = int
-                                                                  .parse(subject
-                                                                      .credit!); // Parse String to double
-                                                            } catch (e) {
-                                                              creditValue =
-                                                                  0; // Default to 0.0 if parsing fails
-                                                            }
-                                                          }
-                                                          return sum +
-                                                              creditValue; // Add to the total
-                                                        },
-                                                      )
-                                                    : 0;
-
-                                                return Column(
-                                                  children: [
-                                                    Container(
-                                                      width: double.infinity,
-                                                      decoration: BoxDecoration(
-                                                        color: Colors.red,
-                                                        borderRadius:
-                                                            const BorderRadius
-                                                                .only(
-                                                          topLeft:
-                                                              Radius.circular(
-                                                                  10),
-                                                          topRight:
-                                                              Radius.circular(
-                                                                  10),
-                                                        ),
-                                                        border: Border.all(
-                                                            width: .5,
-                                                            color:
-                                                                Colors.white),
-                                                      ),
-                                                      child: const Center(
-                                                        child: Text(
-                                                          "All Semester",
-                                                          style: TextStyle(
-                                                              color:
-                                                                  Colors.white,
-                                                              fontSize: 25,
-                                                              fontFamily:
-                                                                  "FontMain2",
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w500,
-                                                              letterSpacing:
-                                                                  0.75),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    Row(
-                                                      children: [
-                                                        Container(
-                                                          height: 30,
-                                                          width: 260,
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            color: Colors.red,
-                                                            border: Border.all(
-                                                                width: .5,
-                                                                color: Colors
-                                                                    .white),
-                                                          ),
-                                                          child: Center(
-                                                            child: Text(
-                                                              semester.semesterTitle ??
-                                                                  'No Title',
-                                                              style: const TextStyle(
-                                                                  color: Colors
-                                                                      .white,
-                                                                  fontSize: 20,
-                                                                  fontFamily:
-                                                                      "FontMain2",
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w500,
-                                                                  letterSpacing:
-                                                                      0.75),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        const SizedBox(
-                                                          width: 2,
-                                                        ),
-                                                        Container(
-                                                          height: 30,
-                                                          width: 110,
-                                                          color: Colors.red,
-                                                          child: const Center(
-                                                              child: Text(
-                                                            "Credits",
-                                                            style: TextStyle(
-                                                                color: Colors
-                                                                    .white,
-                                                                fontSize: 20,
-                                                                fontFamily:
-                                                                    "FontMain2",
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w500,
-                                                                letterSpacing:
-                                                                    0.75),
-                                                          )),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    // Ensure subjects are displayed if not null
-                                                    if (semester.subjects !=
-                                                        null)
-                                                      ...semester.subjects!
-                                                          .map((subject) {
-                                                        return Column(
-                                                          children: [
-                                                            Row(
-                                                              children: [
-                                                                Container(
-                                                                  height: 30,
-                                                                  width: 260,
-                                                                  color: Colors
-                                                                      .greenAccent,
-                                                                  child: Center(
-                                                                    child: Text(
-                                                                      subject.name ??
-                                                                          'No Subject Name',
-                                                                      style: const TextStyle(
-                                                                          color: Colors
-                                                                              .black,
-                                                                          fontSize:
-                                                                              20,
-                                                                          fontFamily:
-                                                                              "FontMain2",
-                                                                          fontWeight: FontWeight
-                                                                              .w500,
-                                                                          letterSpacing:
-                                                                              0.75),
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                                const SizedBox(
-                                                                    width: 2),
-                                                                Container(
-                                                                  height: 30,
-                                                                  width: 110,
-                                                                  color: Colors
-                                                                      .greenAccent,
-                                                                  child: Row(
-                                                                    crossAxisAlignment:
-                                                                        CrossAxisAlignment
-                                                                            .center,
-                                                                    mainAxisAlignment:
-                                                                        MainAxisAlignment
-                                                                            .center,
-                                                                    children: [
-                                                                      Text(
-                                                                        subject.credit ??
-                                                                            '0',
-                                                                        style: const TextStyle(
-                                                                            color: Colors
-                                                                                .black,
-                                                                            fontSize:
-                                                                                20,
-                                                                            fontFamily:
-                                                                                "FontMain2",
-                                                                            fontWeight:
-                                                                                FontWeight.w500,
-                                                                            letterSpacing: 0.75),
-                                                                      ),
-                                                                      const Text(
-                                                                          "  Credit",
-                                                                          style: TextStyle(
-                                                                              color: Colors.black,
-                                                                              fontSize: 20,
-                                                                              fontFamily: "FontMain2",
-                                                                              fontWeight: FontWeight.w500,
-                                                                              letterSpacing: 0.75)),
-                                                                    ],
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                            const SizedBox(
-                                                                height: 2),
-                                                          ],
-                                                        );
-                                                      }),
-
-                                                    // Total credits row
-                                                    Row(
-                                                      children: [
-                                                        Container(
-                                                          height: 30,
-                                                          width: 260,
-                                                          decoration:
-                                                              const BoxDecoration(
-                                                                  color: Colors
-                                                                      .red,
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .only(
-                                                                    bottomLeft:
-                                                                        Radius.circular(
-                                                                            10),
-                                                                  )),
-                                                          child: const Center(
-                                                            child: Text(
-                                                              "Total",
-                                                              style: TextStyle(
-                                                                  color: Colors
-                                                                      .white,
-                                                                  fontSize: 25,
-                                                                  fontFamily:
-                                                                      "FontMain2",
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w500,
-                                                                  letterSpacing:
-                                                                      0.75),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        Container(
-                                                          height: 30,
-                                                          width: 112,
-                                                          decoration:
-                                                              const BoxDecoration(
-                                                                  color: Colors
-                                                                      .red,
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .only(
-                                                                    bottomRight:
-                                                                        Radius.circular(
-                                                                            10),
-                                                                  )),
-                                                          child: Row(
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .center,
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .center,
-                                                            children: [
-                                                              Text(
-                                                                "$totalCredits",
-                                                                style: const TextStyle(
-                                                                    color: Colors
-                                                                        .white,
-                                                                    fontSize:
-                                                                        20,
-                                                                    fontFamily:
-                                                                        "FontMain2",
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w500,
-                                                                    letterSpacing:
-                                                                        0.75),
-                                                              ),
-                                                              const Text(
-                                                                " Credits",
-                                                                style: TextStyle(
-                                                                    color: Colors
-                                                                        .white,
-                                                                    fontSize:
-                                                                        20,
-                                                                    fontFamily:
-                                                                        "FontMain2",
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w500,
-                                                                    letterSpacing:
-                                                                        0.75),
-                                                              )
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-
-                                                    SizedBox(
-                                                      height: 30.h,
-                                                    ),
-                                                  ],
-                                                );
-                                              } else {
-                                                return const SizedBox();
-                                              }
-                                            },
-                                          );
-                                        } else if (snapshot.hasError) {
-                                          return const Center(
-                                            child: Text('Failed to load data'),
-                                          );
-                                        } else {
-                                          return const Center(
-                                            child: CircularProgressIndicator(),
-                                          );
-                                        }
-                                      },
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                    height: 8,
-                                  ),
-                                ],
-                              ),
-                            );
-                          }).toList(),
+        child: Visibility(
+          replacement: const Center(child: CustomLoadingWidget()),
+          visible: !controller.inProgress,
+          child: DefaultTabController(
+            length: controller.courseCategory.length,
+            child: Column(
+              children: [
+                TabBar(
+                  // Map the course categories to Tab widgets
+                  tabs: controller.courseCategory.map((category) {
+                    return Tab(
+                      child: Text(
+                        "${category.duration} ${category.type}",
+                        style: TextStyle(
+                          fontSize: 15.sp,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: "FontMain2",
+                          letterSpacing: .5,
                         ),
                       ),
-                    ],
+                    );
+                  }).toList(),  // Ensure this returns a List<Tab>
+                ),
+                SizedBox(
+                  height: 10.h,
+                ),
+                Expanded(
+                  child: TabBarView(
+                    // Map the course categories to corresponding widget views
+                    children: controller.courseCategory.map((category) {
+                      return SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            SizedBox(
+                              height: 400,
+                              child: FutureBuilder<CourseSemesterModel>(
+                                future: controller.fetchSemesterWithSpecificCourse(category.sId),
+                                builder: (context, snapshot) {
+                                  if (snapshot.hasData && snapshot.data != null) {
+                                    final semesterCategory = snapshot.data!;
+                                    return ListView.builder(
+                                      shrinkWrap: true,
+                                      physics: const NeverScrollableScrollPhysics(),
+                                      itemCount: controller.semesterCategory.length,
+                                      itemBuilder: (context, index) {
+                                        final semester = controller.semesterCategory[index];
+                                        // Build the content for each semester
+                                        return Column(
+                                          children: [
+                                            // Add widgets related to the semester here
+                                          ],
+                                        );
+                                      },
+                                    );
+                                  } else if (snapshot.hasError) {
+                                    return const Center(
+                                      child: Text('Failed to load data'),
+                                    );
+                                  } else {
+                                    return const Center(
+                                      child: CircularProgressIndicator(),
+                                    );
+                                  }
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(), // Ensure this returns a List<Widget> for each tab's view
                   ),
-                );
-              } else {
-                // Data is empty
-                return const Center(
-                  child: Text('No career objectives found'),
-                );
-              }
-            }),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
-    );
+    ));
   }
+
 
   Widget _buildCustomContainer({title, details, color}) {
     return Container(
