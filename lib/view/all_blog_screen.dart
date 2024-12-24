@@ -18,7 +18,7 @@ import '../resource/common_widget/youtube_player.dart';
 import 'course_search_screen.dart';
 import '../resource/common_widget/footer.dart';
 import '../resource/common_widget/map_location.dart';
-
+var a=3;
 class AllBlog extends StatefulWidget {
   const AllBlog({super.key});
 
